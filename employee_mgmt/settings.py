@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yb1g_lln^c!es6usx8vg0ogqn98o_%y4$^ldb+1)b+*hhlc(n)'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'empdb',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': '',
         'HOST': 'localhost',
     }
 }

@@ -1,22 +1,14 @@
 from django.contrib import admin
-from .models import Employee
+from employee.models import Employee
 
 
 # Register your models here.
-class EmployeeInline(admin.TabularInline):
-    model = Employee
-    extra = 3
+# class EmployeeAdmin(admin.ModelAdmin):
+#     fields = ('first_name', 'last_name', 'oib')
+
 
 class EmployeeAdmin(admin.ModelAdmin):
-    fieldsets = [
-        (None, {'fields': ['question_text']}),
-        ('Date information', {'fields': ['pub_date'], 'classes': ['collapse']}),
-    ]
-    inlines = [EmployeeInline]
-    list_display = ('question_text', 'pub_date', 'was_published_recently')
-    list_filter = ['pub_date']
-    search_fields = ['question_text']
-    pagination = 50
+    exclude = ('bank',)
 
 
-admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Employee)

@@ -1,56 +1,73 @@
+# from __future__ import print_function
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.template import loader
 from django.urls import reverse
 from django.views import generic
+from .forms import MyForm
+
 from .models import Employee
 from django.utils import timezone
 
+from mailmerge import MailMerge
+from datetime import date
+
 
 # Create your views here.
-class IndexView(generic.ListView):
-    template_name = 'employee/index.html'
-    context_object_name = 'latest_Employee_list'
 
-    def get_queryset(self):
-        """
-        Return the last five published Employees (not including those set to be
-        published in the future).
-        """
-        return Employee.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
-        # return Employee.objects.order_by('-pub_date')[:5]
+REPORT_CHOICES = [
+    '1. Ovlaštenje banci',
+    '2. HZZ formular',
+    '3. HZMO formular',
+    '4. HZZO formular',
+    '5. Ugovor',
+    '6. Sporazum o opremi'
+]
+
+# def index(request):
+#     if request.method == 'POST':
+#         form = MyForm(request.POST)
+#         if form.is_valid():
+#             print("Hello")
+#             template = loader.get_template('employee/index.html')
+#             return HttpResponseRedirect('/admin/')
+#     else:
+#         form = MyForm
+#     template = loader.get_template('employee/index.html')
+#     context = {
+#         'form': form
+#     }
+#    return HttpResponse(template.render(context, request))
+#    return render(request, '/employee/', {'form': form})
+
+template_1 = "WordMerge1.docx"
+document = MailMerge(template_1)
 
 
-class DetailView(generic.DetailView):
-    model = Employee
-    template_name = 'employee/detail.html'
+def index(request):
+    report_list = REPORT_CHOICES
+    employee_list = Employee.objects.order_by('id')
+    template = loader.get_template('employee/index.html')
+    context = {
+        "report_list": report_list,
+        "employee_list": employee_list
+    }
 
-    def get_queryset(self):
-        """
-        Excludes any Employees that aren't published yet.
-        """
-        return Employee.objects.filter(pub_date__lte=timezone.now())
+    if request.POST.get('mybtn'):
+        print('Testiramo')
+        report = request.POST.get('report')
+        empid = request.POST.get('empid')
+        emp = Employee.objects.get(id=empid)
 
+        print(report, emp.last_name, emp.first_name, emp.last_school)
 
-class ResultsView(generic.DetailView):
-    model = Employee
-    template_name = 'employee/results.html'
+        with MailMerge(template_1, 'w') as file:
+            file.merge(
+                company=emp.last_name,
+                client=emp.first_name)
+            file.write('test-output.docx')
 
+    return HttpResponse(template.render(context, request))
 
-def vote(request, Employee_id):
-    employee = get_object_or_404(Employee, pk=Employee_id)
-    try:
-        selected_choice = employee.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Employee.DoesNotExist):
-        # Redisplay the Employee voting from
-        return render(request, 'polls/detail.html', {
-            'employee': employee,
-            'error_message': "You didn't select a choice."
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(Employee.id,)))
 

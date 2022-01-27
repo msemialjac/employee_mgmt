@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'employee.apps.EmployeeConfig'
+    'employee.apps.EmployeeConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,9 +112,13 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'CET'
 
+# DATE_INPUT_FORMATS = ['%d-%m-%Y']
+
 USE_I18N = True
 
 USE_TZ = True
+
+USE_THOUSAND_SEPARATOR = True
 
 
 # Static files (CSS, JavaScript, Images)

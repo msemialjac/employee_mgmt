@@ -1,22 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
-
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Obrasci docx</title>
 </head>
 <body>
-{% if latest_question_list %}
-    <ul>
-    {% for question in latest_question_list %}
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
+    <br>
+    <h1>Odaberite obrazac i zaposlenika</h1>
+    <br>
+    <div>
+    <form action="#" method="post">
+        {% csrf_token %}
+        {#        {{ form }}#}
+        <label for="cars">Odaberi izvještaj:</label>
+        <select name="report" id="report">
+          {% for item in report_list %}
+          <option value="{{ item }}">{{ item }}</option>
+          {% endfor %}
+        </select>
+        <br>
+        <br>
+            <label for="cars">Odaberi zaposlenika:</label>
+        <select name="empid" id="id">
+          {% for item in employee_list %}
+          <option value="{{ item.id }}">{{ item.id }}. {{ item.last_name }}</option>
+          {% endfor %}
+        <br>
+    <br>
+        </select>
+        <input type="submit" value="Predaj" name="mybtn">
+    </form>
+    </div>
+{#    <br>#}
+{#    <button type="button">Izvezi u Word</button>#}
+{#        <p><a href="{% url 'admin:employee' %}"}></a>Employee Admin</p>#}
+
 </body>
 </html>

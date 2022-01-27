@@ -1,9 +1,7 @@
 from django.core.validators import RegexValidator
 from django.db import models
-from django.conf import settings
 
 
-# Create your models here.
 class Employee(models.Model):
     first_name = models.CharField(max_length=40, verbose_name='Ime')
     last_name = models.CharField(max_length=40, verbose_name='Prezime')
@@ -58,25 +56,11 @@ class Employee(models.Model):
 
             }
             if str(self.iban)[4:11] in bank_numbers.keys():
-                print(self.iban)
                 self.bank = bank_numbers[str(self.iban)[4:11]]
-                print("prošlo je")
-                print(self.bank)
-                # return self.bank
             else:
                 self.bank = ''
-                # return self.bank
 
-            # self.bank = a
-            print(self.bank)
-        print(self.iban[4:11])
-        print("nije prošlo")
         super(Employee, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-
-
-class Docs(models.Model):
-    choose_doc = models.CharField(max_length=40, verbose_name='Ime')
-    last_name = models.CharField(max_length=40, verbose_name='Prezime'),

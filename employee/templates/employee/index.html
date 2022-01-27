@@ -11,7 +11,6 @@
     <div>
     <form action="#" method="post">
         {% csrf_token %}
-        {#        {{ form }}#}
         <label for="cars">Odaberi izvještaj:</label>
         <select name="report" id="report">
           {% for item in report_list %}
@@ -31,9 +30,5 @@
         <input type="submit" value="Predaj" name="mybtn">
     </form>
     </div>
-{#    <br>#}
-{#    <button type="button">Izvezi u Word</button>#}
-{#        <p><a href="{% url 'admin:employee' %}"}></a>Employee Admin</p>#}
-
 </body>
 </html>

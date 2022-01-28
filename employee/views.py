@@ -23,7 +23,8 @@ def index(request):
         report = request.POST.get('report')
         empid = request.POST.get('empid')
         emp = Employee.objects.get(id=empid)
-
+        print(emp.first_name, 'drugo')
+        print(report)
         document = f"employee/docx/{report}"
 
         with MailMerge(document, 'w') as file:
@@ -31,22 +32,22 @@ def index(request):
                 first_name=emp.first_name,
                 last_name=emp.last_name,
                 oib=emp.oib,
-                client=emp.gender.title(),
+                gender=emp.gender.title(),
                 date_birth=str(emp.date_birth.strftime("%d.%m.%Y.")),
-                fax=str(emp.date_work.strftime("%d.%m.%Y.")),
-                country=emp.nationality,
+                date_work=str(emp.date_work.strftime("%d.%m.%Y.")),
+                nationality=emp.nationality,
                 address=emp.address,
                 zip=emp.zip,
                 city=emp.city,
                 school=emp.last_school,
-                vss=emp.edu_degree,
+                edu_degree=emp.edu_degree,
                 iban=emp.iban,
                 bank=emp.bank,
                 swift=emp.swift,
                 item=emp.item,
-                reserve=emp.exp_years,
-                substitute=emp.exp_months,
-                salutation=emp.exp_days,
+                exp_years=emp.exp_years,
+                exp_months=emp.exp_months,
+                exp_days=emp.exp_days,
                 blank="")
             file.write(f'employee/downloads/popunjen_{report}')
     return HttpResponse(template.render(context, request))

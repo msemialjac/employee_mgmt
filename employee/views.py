@@ -3,24 +3,16 @@ from django.template import loader
 
 from .models import Employee
 
+from os import listdir
+from os.path import isfile, join
 from mailmerge import MailMerge
-
-REPORT_CHOICES = [
-    '1. Ovlaštenje banci',
-    '2. HZZ formular',
-    '3. HZMO formular',
-    '4. HZZO formular',
-    '5. Ugovor',
-    '6. Sporazum o opremi'
-]
-
-template_1 = "WordMerge1.docx"
-document = MailMerge(template_1)
 
 
 def index(request):
-    report_list = REPORT_CHOICES
+    mypath = 'employee/docx/'
+    report_list = sorted([f for f in listdir(mypath) if isfile(join(mypath, f))])
     employee_list = Employee.objects.order_by('id')
+
     template = loader.get_template('employee/index.html')
     context = {
         "report_list": report_list,
@@ -32,12 +24,31 @@ def index(request):
         empid = request.POST.get('empid')
         emp = Employee.objects.get(id=empid)
 
-        with MailMerge(template_1, 'w') as file:
-            file.merge(
-                company=emp.last_name,
-                client=emp.first_name)
-            file.write('employee/downloads/obrazac_1_output.docx')
+        document = f"employee/docx/{report}"
 
+        with MailMerge(document, 'w') as file:
+            file.merge(
+                first_name=emp.first_name,
+                last_name=emp.last_name,
+                oib=emp.oib,
+                client=emp.gender.title(),
+                date_birth=str(emp.date_birth.strftime("%d.%m.%Y.")),
+                fax=str(emp.date_work.strftime("%d.%m.%Y.")),
+                country=emp.nationality,
+                address=emp.address,
+                zip=emp.zip,
+                city=emp.city,
+                school=emp.last_school,
+                vss=emp.edu_degree,
+                iban=emp.iban,
+                bank=emp.bank,
+                swift=emp.swift,
+                item=emp.item,
+                reserve=emp.exp_years,
+                substitute=emp.exp_months,
+                salutation=emp.exp_days,
+                blank="")
+            file.write(f'employee/downloads/popunjen_{report}')
     return HttpResponse(template.render(context, request))
 
 

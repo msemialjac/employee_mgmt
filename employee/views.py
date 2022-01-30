@@ -32,7 +32,7 @@ def index(request):
                 first_name=emp.first_name,
                 last_name=emp.last_name,
                 oib=emp.oib,
-                gender=emp.gender.title(),
+                gender=emp.gender.upper(),
                 date_birth=str(emp.date_birth.strftime("%d.%m.%Y.")),
                 date_work=str(emp.date_work.strftime("%d.%m.%Y.")),
                 nationality=emp.nationality,
@@ -41,7 +41,7 @@ def index(request):
                 city=emp.city,
                 school=emp.last_school,
                 edu_degree=emp.edu_degree,
-                iban=emp.iban,
+                iban=emp.iban.upper(),
                 bank=emp.bank,
                 swift=emp.swift,
                 item=emp.item,
@@ -49,7 +49,7 @@ def index(request):
                 exp_months=emp.exp_months,
                 exp_days=emp.exp_days,
                 blank="")
-            file.write(f'employee/downloads/popunjen_{report}')
+            file.write(f'employee/downloads/{emp.first_name}_{emp.last_name}_{report}')
     return HttpResponse(template.render(context, request))
 
 

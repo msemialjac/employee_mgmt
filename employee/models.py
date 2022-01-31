@@ -2,6 +2,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.core.exceptions import ValidationError
 from .data import *
+from datetime import date, timedelta
 
 
 # https://regos.hr/app/uploads/2018/07/KONTROLA-OIB-a.pdf - validacija oiba - Regos
@@ -29,13 +30,9 @@ def validate_iban(iban):
     return iban % 97 == 1
 
 
-def calculate_work_time():
-    pass
-
-
 class Employee(models.Model):
     first_name = models.CharField(max_length=40, verbose_name='Ime')
-    last_name = models.CharField(max_length=40, verbose_name='Prezime', )
+    last_name = models.CharField(max_length=40, verbose_name='Prezime')
     oib = models.CharField(verbose_name='OIB',
                            validators=[RegexValidator(regex='^\d{11}$',
                                                       message='Duljina polja je točno 11 znamenki, samo znamenke!!!',
@@ -73,12 +70,36 @@ class Employee(models.Model):
                                 validators=[RegexValidator(regex='^(\d{3}|\d{2}|\d{1}){1}$',
                                                            message='Samo znamenke. Najmanje jedna znamenka.',
                                                            code='nomatch')], editable=True, null=True)
+    exp_in_company_years = models.CharField(max_length=3, default='', verbose_name='Staž u firmi - godine', null=True, editable=False)
+    exp_in_company_months = models.CharField(max_length=120, default='', verbose_name='Staž u firmi - mjeseci', null=True, editable=False)
+    exp_in_company_days = models.CharField(max_length=120, default='', verbose_name='Staž u firmi - dani', null=True, editable=False)
+    exp_total_years = models.CharField(max_length=120, default='', verbose_name='Staž ukupno - godine', null=True, editable=False)
+    exp_total_months = models.CharField(max_length=120, default='', verbose_name='Staž ukupno - mjeseci', null=True, editable=False)
+    exp_total_days = models.CharField(max_length=120, default='', verbose_name='staž ukupno - dani', null=True, editable=False)
+
+    def calculate_work_time(self):
+        all_days_in_company = date.today() - self.date_work
+        years_in_company = int(all_days_in_company // timedelta(days=360))
+        months_in_company = int(all_days_in_company % timedelta(days=360) // timedelta(days=30))
+        days_in_company = int(all_days_in_company % timedelta(days=360) % timedelta(days=30) / timedelta(days=1))
+        exp_in_company_years, exp_in_company_months, exp_in_company_days = years_in_company, \
+                                                                           months_in_company, \
+                                                                           days_in_company
+        all_days = (years_in_company * 360) + (int(self.exp_years) *360) + \
+                   (months_in_company * 30) + (int(self.exp_months) * 30) + (days_in_company) + int(self.exp_days)
+        exp_total_years, exp_total_months, exp_total_days = int(all_days // 360), \
+                                                            int(all_days % 360 // 30), \
+                                                            int(all_days % 360 % 30)
+
+        return str(exp_total_years), str(exp_total_months), str(exp_total_days), \
+               str(exp_in_company_years), str(exp_in_company_months), str(exp_in_company_days)
 
     def clean(self):
         errors = {}
         if not errors.get('oib') and self.oib.isdecimal() and len(self.oib) == 11 and not validate_oib(self.oib):
             errors['oib'] = ('Kontrolni broj je krivi. Neispravan OIB!\n ')
-        if not errors.get('iban') and self.iban[2:].isdecimal() and len(self.iban) == 21 and not validate_iban(self.iban):
+        if not errors.get('iban') and self.iban[2:].isdecimal() and len(self.iban) == 21 and not validate_iban(
+                self.iban):
             errors['iban'] = ('Provjera kontrolnog broja neuspjela. Neispravan IBAN!\n ')
         if not errors.get('exp_days') and self.exp_days.isdecimal() and int(self.exp_days) > 364:
             errors['exp_days'] = ('Unesen je preveliki broj dana. Maksimalni broj dana je 364!\n ')
@@ -90,21 +111,21 @@ class Employee(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        if not self.bank or self.bank == 'Nepoznata banka':
-            bank_num = str(self.iban)[4:11]
-            if bank_num in bank_numbers.keys():
-                self.bank = bank_numbers[bank_num][0]
-                self.swift = bank_numbers[bank_num][1]
-            else:
-                self.bank = 'Nepoznata banka'
-                self.swift = 'Nepoznati swift'
-
-        if not self.bank_country or self.bank_country == 'Nepoznata zemlja':
-            if self.iban[:2].upper() in country_codes.keys():
-                print("printam se")
-                self.bank_country = country_codes[self.iban[:2].upper()][0]
-            else:
-                self.bank_country = 'Nepoznata zemlja'
+        bank_num = str(self.iban)[4:11]
+        self.exp_total_years, self.exp_total_months, self.exp_total_days, \
+        self.exp_in_company_years, self.exp_in_company_months, self.exp_in_company_days = self.calculate_work_time()
+        if (not self.bank_country or self.bank_country == 'Nepoznata zemlja') and self.iban[
+                                                                                  :2].upper() in country_codes.keys():
+            self.bank_country = country_codes[self.iban[:2].upper()][0]
+        if self.iban[:2].upper() not in country_codes.keys():
+            self.bank_country = 'Nepoznata zemlja'
+        if (not self.bank or self.bank == 'Nepoznata banka') and bank_num in bank_numbers.keys():
+            print("printam se")
+            self.bank = bank_numbers[bank_num][0]
+            self.swift = bank_numbers[bank_num][1]
+        else:
+            self.bank = 'Nepoznata banka'
+            self.swift = 'Nepoznati swift'
 
         super(Employee, self).save(*args, **kwargs)
 

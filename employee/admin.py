@@ -3,7 +3,7 @@ from employee.models import Employee
 
 
 class EmployeeAdmin(admin.ModelAdmin):
-    exclude = ('ank',)
+    exclude = ('bank',)
 
 
 admin.site.register(Employee)

@@ -120,7 +120,6 @@ class Employee(models.Model):
         if self.iban[:2].upper() not in country_codes.keys():
             self.bank_country = 'Nepoznata zemlja'
         if (not self.bank or self.bank == 'Nepoznata banka') and bank_num in bank_numbers.keys():
-            print("printam se")
             self.bank = bank_numbers[bank_num][0]
             self.swift = bank_numbers[bank_num][1]
         else:
@@ -131,32 +130,3 @@ class Employee(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-
-    # def clean(self):
-    #     errors = {}
-    #     if not errors:
-    #         if self.first_name[0] != 'M':
-    #             errors['first_name'] = ('Prvo slovo nije "M".\n ')
-    #     if not errors:
-    #         if "Mario" not in self.first_name:
-    #             errors['first_name'] = ('Ime nije Mario.\n ')
-    #     if not errors.get('iban'):
-    #         if len(self.first_name) != 5:
-    #             errors['iban'] = ('Ime nema točno 5 slova!\n ')
-    #     if errors:
-    #         if self.first_name[0] != 'M' and errors['first_name'] != ('Prvo slovo nije "M".\n '):
-    #             errors['first_name'] += ('Prvo slovo nije "M".\n ')
-    #         if "Mario" not in self.first_name and errors['first_name'] != ('Ime nije Mario.\n '):
-    #             errors['first_name'] += ('Ime nije Mario.\n ')
-    #         if len(self.first_name) != 5 and errors['iban'] != ('Ime nema točno 5 slova!\n '):
-    #             errors['iban'] += ('Ime nema točno 5 slova!\n ')
-    #             raise ValidationError(errors)
-    #
-    #     if errors:
-    #         raise ValidationError(errors)
-
-# def validation_name(value):
-# if "Mario" in value:
-#     return value
-# else:
-#     raise ValidationError("Ime nije Mario")

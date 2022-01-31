@@ -29,18 +29,18 @@ def index(request):
 
         with MailMerge(document, 'w') as file:
             file.merge(
-                first_name=emp.first_name,
-                last_name=emp.last_name,
+                first_name=emp.first_name.title(),
+                last_name=emp.last_name.title(),
                 oib=emp.oib,
                 gender=emp.gender.upper(),
                 date_birth=str(emp.date_birth.strftime("%d.%m.%Y.")),
                 date_work=str(emp.date_work.strftime("%d.%m.%Y.")),
-                nationality=emp.nationality,
+                nationality=emp.nationality.capitalize(),
                 address=emp.address,
                 zip=emp.zip,
-                city=emp.city,
+                city=emp.city.title(),
                 school=emp.last_school,
-                edu_degree=emp.edu_degree,
+                edu_degree=emp.edu_degree.upper(),
                 iban=emp.iban.upper(),
                 bank=emp.bank,
                 swift=emp.swift,
